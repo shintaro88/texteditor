@@ -26,8 +26,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Jangan pakai cache: gradle di sini.
-      # Repo hanya berisi ZIP, sehingga file Gradle belum ada saat setup-java berjalan.
+      # Jangan pakai cache: gradle di sini karena repo awal hanya berisi ZIP.
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -99,6 +98,15 @@ jobs:
           if [ ! -d android ]; then
             flutter create --project-name text_editor_premium --org com.stevanus --platforms=android .
           fi
+
+      # flutter create membuat test/widget_test.dart bawaan yang memanggil MyApp.
+      # App ini memakai class TextEditorApp, jadi test bawaan dihapus agar analyze tidak gagal.
+      - name: Remove default Flutter template test
+        shell: bash
+        run: |
+          PROJECT_DIR="${{ steps.project.outputs.project_dir }}"
+          cd "$PROJECT_DIR"
+          rm -rf test
 
       - name: Flutter pub get
         shell: bash
