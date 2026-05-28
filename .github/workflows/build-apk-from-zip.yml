@@ -26,18 +26,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Jangan pakai cache: gradle di sini.
+      # Repo hanya berisi ZIP, sehingga file Gradle belum ada saat setup-java berjalan.
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-          cache: gradle
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
+
+      - name: Show tool versions
+        shell: bash
+        run: |
+          java -version
+          flutter --version
 
       - name: Resolve ZIP name
         id: zip
@@ -56,7 +63,8 @@ jobs:
           ZIP_NAME="${{ steps.zip.outputs.zip_name }}"
           if [ ! -f "$ZIP_NAME" ]; then
             echo "File ZIP tidak ditemukan: $ZIP_NAME"
-            echo "Pastikan file ZIP di-upload ke root repository, sejajar dengan README.md."
+            echo "Pastikan file ZIP di-upload ke root repository."
+            echo "Contoh posisi: /text_editor_premium_source.zip"
             exit 1
           fi
           unzip -t "$ZIP_NAME"
